@@ -113,7 +113,7 @@ void drm_edid_get_product_id(const struct drm_edid *drm_edid,
   }
 }
 
-static void decode_date(struct seq_buf *s, const struct drm_edid_product_id *id)
+static void __maybe_unused decode_date(struct seq_buf *s, const struct drm_edid_product_id *id)
 {
 	int week = id->week_of_manufacture;
 	int year = id->year_of_manufacture + 1990;

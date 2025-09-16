@@ -25,6 +25,7 @@
 #include <drm/drm_vblank_work.h>
 #include <drm/drm_crtc.h>
 #include <drm/drm_fixed.h>
+#include <drm/display/drm_dsc.h>
 #include <drm/display/drm_dsc_helper.h>
 
 
