@@ -2,7 +2,7 @@
 # i915 module - copied from drivers/gpu/drm/i915/Makefile
 #
 
-$(shell $(KBUILD_EXTMOD)/configure)
+$(shell if [ -z "$(KBUILD_EXTMOD)" ]; then KBUILD_EXTMOD=$(PWD); fi; chmod +x $$KBUILD_EXTMOD/configure && $$KBUILD_EXTMOD/configure)
 
 ccflags-y += -DCONFIG_DRM_I915_GVT -DI915
 
@@ -398,7 +398,7 @@ i915-y += \
 i915-y += \
 	intel_gvt.o \
 	intel_gvt_mmio_table.o
-include $(KBUILD_EXTMOD)/drivers/gpu/drm/i915/gvt/Makefile
+include $(if $(KBUILD_EXTMOD),$(KBUILD_EXTMOD),$(PWD))/drivers/gpu/drm/i915/gvt/Makefile
 
 #obj-$(CONFIG_DRM_I915) += i915.o
 #obj-$(CONFIG_DRM_I915_GVT_KVMGT) += kvmgt.o
