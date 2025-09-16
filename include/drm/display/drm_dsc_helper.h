@@ -7,10 +7,17 @@
 #ifdef CONFIG_DRM_DSC
 #include <drm/drm_dsc.h>
 #endif
+/* Include our DSC definitions for backport */
+#include <drm/display/drm_dsc.h>
 #endif
 
 #ifndef _BACKPORT_DRM_DISPLAY_DRM_DSC_HELPER_H
 #define _BACKPORT_DRM_DISPLAY_DRM_DSC_HELPER_H
+
+/* Ensure DSC structures are defined */
+#ifndef _DRM_DSC_H_
+#include <drm/display/drm_dsc.h>
+#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 11, 0)
 struct drm_printer;
