@@ -2,6 +2,9 @@
 # i915 module - copied from drivers/gpu/drm/i915/Makefile
 #
 
+# Set default kernel source directory
+KERNEL_SRC ?= /lib/modules/$(shell uname -r)/build
+
 $(shell if [ -z "$(KBUILD_EXTMOD)" ]; then KBUILD_EXTMOD=$(PWD); fi; chmod +x $$KBUILD_EXTMOD/configure && $$KBUILD_EXTMOD/configure)
 
 ccflags-y += -DCONFIG_DRM_I915_GVT -DI915
@@ -436,3 +439,14 @@ obj-m := i915.o
 obj-m += kvmgt.o
 
 .PHONY: default clean modules load unload install patch
+
+default: modules
+
+modules:
+	$(MAKE) -C $(KERNEL_SRC) M=$(if $(KBUILD_EXTMOD),$(KBUILD_EXTMOD),$(PWD)) modules
+
+clean:
+	$(MAKE) -C $(KERNEL_SRC) M=$(if $(KBUILD_EXTMOD),$(KBUILD_EXTMOD),$(PWD)) clean
+
+install:
+	$(MAKE) -C $(KERNEL_SRC) M=$(if $(KBUILD_EXTMOD),$(KBUILD_EXTMOD),$(PWD)) modules_install
