@@ -14,6 +14,28 @@
 #include <drm/drm_print.h>
 #include <drm/display/drm_dp_helper.h>
 
+/* Compatibility functions for older kernels */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 1, 0)
+static inline size_t size_mul(size_t a, size_t b)
+{
+	return a * b;
+}
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 9, 0)
+
+/* Stub implementations for missing DRM DP functions */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 0, 0)
+static inline bool drm_dp_is_uhbr_rate(int link_rate)
+{
+	return false; /* UHBR rates not supported in older kernels */
+}
+
+static inline int drm_dp_bw_channel_coding_efficiency(bool is_uhbr)
+{
+	return is_uhbr ? 968 : 800; /* Approximate values */
+}
+#endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 9, 0)
 /**
@@ -226,9 +248,15 @@ int drm_dp_max_dprx_data_rate(int max_link_rate, int max_lanes)
 	int ch_coding_efficiency =
 		drm_dp_bw_channel_coding_efficiency(drm_dp_is_uhbr_rate(max_link_rate));
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
 	return DIV_ROUND_DOWN_ULL(mul_u32_u32(max_link_rate * 10 * max_lanes,
 					      ch_coding_efficiency),
 				  1000000 * 8);
+#else
+	/* Simplified calculation for older kernels */
+	u64 data_rate = (u64)max_link_rate * 10 * max_lanes * ch_coding_efficiency;
+	return (int)(data_rate / (1000000 * 8));
+#endif
 }
 
 /**

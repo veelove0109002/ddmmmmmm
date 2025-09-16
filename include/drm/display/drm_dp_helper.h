@@ -18,6 +18,18 @@ ssize_t drm_dp_vsc_sdp_pack(const struct drm_dp_vsc_sdp *vsc,
 #endif
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 10, 0)
+
+/* Define missing constants for older kernels */
+#ifndef DP_CAP_ANSI_128B132B
+#define DP_CAP_ANSI_128B132B 0x01
+#endif
+
+/* Define operation_mode enum for older kernels */
+enum operation_mode {
+	ADAPTIVE_SYNC_SDP_OPERATION_MODE_NONE = 0,
+	ADAPTIVE_SYNC_SDP_OPERATION_MODE_VARIABLE_REFRESH_RATE = 1,
+};
+
 /**
  * struct drm_dp_as_sdp - drm DP Adaptive Sync SDP
  *
