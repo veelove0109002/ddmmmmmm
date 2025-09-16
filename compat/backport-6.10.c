@@ -13,6 +13,30 @@
 #include <linux/byteorder/generic.h>
 #include <linux/seq_buf.h>
 
+/* Define missing constants for older kernels */
+#ifndef DP_SINGLE_STREAM_SIDEBAND_MSG
+#define DP_SINGLE_STREAM_SIDEBAND_MSG 0x40
+#endif
+
+#ifndef DP_DPRX_FEATURE_ENUMERATION_LIST_CONT_1
+#define DP_DPRX_FEATURE_ENUMERATION_LIST_CONT_1 0x2214
+#endif
+
+#ifndef DP_ADAPTIVE_SYNC_SDP_SUPPORTED
+#define DP_ADAPTIVE_SYNC_SDP_SUPPORTED 0x01
+#endif
+
+/* Compatibility functions for older kernels */
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0)
+static inline void drm_edid_decode_mfg_id(u16 mfg_id, char vend[4])
+{
+	vend[0] = '@' + ((mfg_id >> 10) & 0x1f);
+	vend[1] = '@' + ((mfg_id >> 5) & 0x1f);
+	vend[2] = '@' + (mfg_id & 0x1f);
+	vend[3] = '\0';
+}
+#endif
+
 #include <drm/display/drm_dp_helper.h>
 #include <drm/display/drm_dp_mst_helper.h>
 #include <drm/drm_client.h>
@@ -111,6 +135,7 @@ static void decode_date(struct seq_buf *s, const struct drm_edid_product_id *id)
 void drm_edid_print_product_id(struct drm_printer *p,
 			       const struct drm_edid_product_id *id, bool raw)
 {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
 	DECLARE_SEQ_BUF(date, 40);
 	char vend[4];
 	drm_edid_decode_mfg_id(be16_to_cpu(id->manufacturer_name), vend);
@@ -121,6 +146,17 @@ void drm_edid_print_product_id(struct drm_printer *p,
 	if (raw)
 		drm_printf(p, "raw product id: %*ph\n", (int)sizeof(*id), id);
 	WARN_ON(seq_buf_has_overflowed(&date));
+#else
+	/* Simplified implementation for older kernels */
+	char vend[4];
+	char date_str[40] = "unknown date";
+	drm_edid_decode_mfg_id(be16_to_cpu(id->manufacturer_name), vend);
+	drm_printf(p, "manufacturer name: %s, product code: %u, serial number: %u, %s\n",
+		   vend, le16_to_cpu(id->product_code),
+		   le32_to_cpu(id->serial_number), date_str);
+	if (raw)
+		drm_printf(p, "raw product id: %*ph\n", (int)sizeof(*id), id);
+#endif
 }
 
 static struct drm_vblank_crtc *
@@ -149,8 +185,13 @@ bool drm_dp_as_sdp_supported(struct drm_dp_aux *aux, const u8 dpcd[DP_RECEIVER_C
 		return false;
 	if (drm_dp_dpcd_readb(aux, DP_DPRX_FEATURE_ENUMERATION_LIST_CONT_1,
 			      &rx_feature) != 1) {
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
 		drm_dbg_dp(aux->drm_dev,
 			   "Failed to read DP_DPRX_FEATURE_ENUMERATION_LIST_CONT_1\n");
+#else
+		/* For older kernels, use a simple debug print or skip */
+		pr_debug("Failed to read DP_DPRX_FEATURE_ENUMERATION_LIST_CONT_1\n");
+#endif
 		return false;
 	}
 	return (rx_feature & DP_ADAPTIVE_SYNC_SDP_SUPPORTED);
