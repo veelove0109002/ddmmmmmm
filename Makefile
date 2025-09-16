@@ -7,7 +7,7 @@ KERNEL_SRC ?= /lib/modules/$(shell uname -r)/build
 
 $(shell if [ -z "$(KBUILD_EXTMOD)" ]; then KBUILD_EXTMOD=$(PWD); fi; chmod +x $$KBUILD_EXTMOD/configure && $$KBUILD_EXTMOD/configure)
 
-ccflags-y += -DCONFIG_DRM_I915_GVT -DI915
+ccflags-y += -DCONFIG_DRM_I915_GVT -DI915 -DCONFIG_DRM_I915_FENCE_TIMEOUT=10000
 
 KBUILD_MODPOST_WARN = 1
 
