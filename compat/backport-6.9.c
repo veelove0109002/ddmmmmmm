@@ -22,8 +22,6 @@ static inline size_t size_mul(size_t a, size_t b)
 }
 #endif
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(6, 9, 0)
-
 /* Stub implementations for missing DRM DP functions */
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 0, 0)
 static inline bool drm_dp_is_uhbr_rate(int link_rate)
