@@ -13,8 +13,10 @@ struct drm_edid_product_id {
 	u8 year_of_manufacture;
 } __packed;
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 10, 0)
 void drm_edid_get_product_id(const struct drm_edid *drm_edid,
 			     struct drm_edid_product_id *id);
+#endif
 
 struct drm_printer;
 
