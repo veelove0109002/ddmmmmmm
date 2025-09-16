@@ -14,7 +14,10 @@
 
 #if LINUX_VERSION_CODE < KERNEL_VERSION(6, 11, 0)
 struct drm_printer;
+/* Only declare if not already defined in system headers */
+#ifndef drm_dsc_dump_config
 void drm_dsc_dump_config(struct drm_printer *p, int indent, const struct drm_dsc_config *cfg);
+#endif
 #endif
 
 #endif
